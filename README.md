@@ -1,2 +1,4 @@
-arduino-due-tests
-=================
+arduino-due
+===========
+
+Prueba con el Arduino Due.

@@ -1,0 +1,36 @@
+Que carajo hace el ArduinoIDE al compilar un proyecto con FreeRTOS
+------------------------------------------------------------------
+
+Tomamos el proyecto blink.cpp, y analizamos el ouput:
+
+C:\Users\fep\Documents\bin\arduino-1.5.2/hardware/tools/g++_arm_none_eabi/bin/arm-none-eabi-g++ 
+    -c   -- Compila y ensambla, pero no linkea
+    -g   -- generate debugging information
+    -Os  -- optimize for space rather than speed
+    -w   -- ignorado / suprime warnings
+    -ffunction-sections    -- Place each function into its own section
+    -fdata-sections        -- Place data items into their own section
+    -nostdlib              -- Only use library directories specified on the command line
+    --param max-inline-insns-single=500    -- The maximum number of instructions in a single function eligible for inlining
+    -fno-rtti         -- ???
+    -fno-exceptions   -- ???
+    -Dprintf=iprintf  -- Define una macro, con lo cual printf se reemplaza con iprintf
+    -mcpu=cortex-m3   -- Specify the name of the target CPU
+    -DF_CPU=84000000L -- Define una macro, con lo cual F_CPU se reemplaza con 84000000L
+    -DARDUINO=152     -- Define una macro, luego ARDUINO se reemplaza con 152
+    -D__SAM3X8E__     -- Define la macro __SAM3x8E__ con el valor 1
+    -mthumb           -- Compile for the Thumb not the ARM
+    -DUSB_PID=0x003e  -- Define la macro USB_PID con el valor 0x003e
+    -DUSB_VID=0x2341  -- Define la macro USB_VID con el valor 0x2341
+    -DUSBCON          -- Define la macro USBCON con el valor 1
+    -IC:\Users\fep\Documents\bin\arduino-1.5.2\hardware\arduino\sam\system/libsam 
+    -IC:\Users\fep\Documents\bin\arduino-1.5.2\hardware\arduino\sam\system/CMSIS/CMSIS/Include/ 
+    -IC:\Users\fep\Documents\bin\arduino-1.5.2\hardware\arduino\sam\system/CMSIS/Device/ATMEL/ 
+    -IC:\Users\fep\Documents\bin\arduino-1.5.2\hardware\arduino\sam\cores\arduino 
+    -IC:\Users\fep\Documents\bin\arduino-1.5.2\hardware\arduino\sam\variants\arduino_due_x 
+    -IC:\Users\fep\Documents\Arduino\libraries\FreeRTOS_ARM 
+                      -- add DIR to search list for .include directives
+    C:\Users\fep\AppData\Local\Temp\build3472501678454059290.tmp\frBlink.cpp 
+    -o C:\Users\fep\AppData\Local\Temp\build3472501678454059290.tmp\frBlink.cpp.o 
+                      -- nombre del archivo objeto
+

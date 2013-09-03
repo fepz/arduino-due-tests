@@ -1,0 +1,41 @@
+Pruebas con chibios-rt-arduino-due
+==================================
+
+El repositorio esta disponible en github en:
+https://github.com/sam0737/chibios-rt-arduino-due/
+
+--- Primera prueba ---
+Se clona el proyecto mediante git o algun cliente (ej. SourceTree).
+
+Ya hay un ejemplo que hace titilar los LEDs (L, RX y TX) usando tres threads.
+El ejemplo esta en demos/ARDUINO-DUE.
+
+Utiliza el toolchain de CodeSourcery que se distribuye con el ArduinoIDE 1.5+, pero se
+puede usar la versión "oficial" descargada de CodeSourcery. Tiene que estar el path
+incluido en el PATH. El readme del ejemplo es bastante claro al respecto.
+
+Para subir el binario a la placa, use el script upload-win.bat, que realizar un hard
+reset de la memoria flash conectandose primero a 1200bps.
+
+El readme.txt dice que se use 'cs-make all' para compilar el ejemplo, pero 'make' parece
+funcionar igual de bien. Excepto para realizar el clean, donde si debemos utilizar el
+cs-make.
+
+Error! Siempre hay un error :) Compilando directamente el ejemplo tira el siguiente error:
+
+Compiling main.c
+In file included from ../../os/hal/include/pal.h:117:0,
+                 from main.c:3:
+../../os/hal/platforms/SAM3X8E/pal_lld.h:93:1: error: unknown type name 'pPio'
+
+Inspeccionando el archivo pal_lld.h, y comparandolo con la anterior versión en el repositorio,
+se borro la linea '#include "sam3x8e.h"'. En este header se hace un include de #include 
+"component/component_pio.h", donde esta declaro pPio (un apuntador a la estructura Pio).
+
+Agregamos entonces el include, y luego compila exitosamente, pero con un warning:
+
+main.c: In function 'main':
+main.c:53:2: warning: implicit declaration of function 'halInit' [-Wimplicit-function-declaration]
+
+El prototipo de la funcion lo encontramos en el archivo 'hal.h', si agregamos el include en 
+el archivo main.c del ejemplo, eliminamos el warning.
