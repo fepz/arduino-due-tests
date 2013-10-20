@@ -13,7 +13,9 @@ task_t str[] = {{1,1000,3000}, {2,1000,4000}, {3,1000,6000}};
 
 int base = 22;
 int offset = 7;
-char numbers[10] = { 63, 6, 91, 79, 102, 109, 125, 39, 127, 103 };
+char numbers[11] = { 63, 6, 91, 79, 102, 109, 125, 39, 127, 103, 121 };
+
+portTickType initWakeTime;
 
 // --- ???? ---
 const unsigned int CAL_GUESS = 17000;
@@ -43,12 +45,15 @@ void task(void* arg) {
     uint16_t t = ((task_t*)arg)->t;
     uint16_t c = ((task_t*)arg)->c;
 
-    portTickType lastWakeTime = xTaskGetTickCount();
+    portTickType lastWakeTime = initWakeTime;
     while(1) {
-        vTaskDelayUntil(&lastWakeTime, t);
+        //vTaskDelayUntil(&lastWakeTime, t);
         set_display(id);
         burn_cpu(c);
-        reset_display();
+        //delay(1000);
+        //reset_display();
+        set_display(10);
+        vTaskDelayUntil(&lastWakeTime, t);
     }
 }
 
@@ -58,10 +63,10 @@ void setup() {
     }
     portBASE_TYPE s;
     calibrate();
+    initWakeTime = xTaskGetTickCount();
     for (int i = 0; i < 3; i++) {
-        s = xTaskCreate(task, NULL, 200, (void*)&str[i], str[i].id, NULL);
+        s = xTaskCreate(task, NULL, 200, (void*)&str[i], tskIDLE_PRIORITY + (4-str[i].id), NULL);
     }
-
     vTaskStartScheduler();
     while(1);
 }
