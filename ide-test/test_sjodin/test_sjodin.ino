@@ -18,7 +18,7 @@ boolean schedulable;
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600);
+  Serial.begin(115200);
   handshake();
 }
 
@@ -27,7 +27,6 @@ void loop() {
   if (Serial.available() > 0) {
     num_task = Serial.parseInt();
     Serial.println(num_task);
-    delay(10);
     
     for (int i = 0; i < num_task; i++) {
       str[i].id = i + 1;
@@ -50,7 +49,6 @@ void loop() {
       Serial.println(str[i].wcrt, DEC);
     }    
     Serial.println(t_end - t_start);
-
 
     Serial.println("rta3");    
     t_start = micros();
