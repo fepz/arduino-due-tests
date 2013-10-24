@@ -13,6 +13,7 @@ struct task_t {
 task_t str[10];
 
 int num_task = 0;
+int num_reps = 0;
 unsigned long t_start, t_end;
 
 boolean schedulable;
@@ -29,6 +30,7 @@ void loop() {
   // Numero de tareas
   if (Serial.available() > 0) {
     num_task = Serial.parseInt();
+    num_reps = Serial.parseInt();
 
     for (int i = 0; i < num_task; i++) {
           str[i].id = i + 1;
@@ -39,49 +41,55 @@ void loop() {
     }
     
     // === test rta3 ===
-    t_start = micros();
-    rta3_wcrt();
-    t_end = micros();    
-    Serial.println("rta3");
-    if (schedulable) {
-      Serial.println("True");
-    } else {
-      Serial.println("False");
-    }    
-    Serial.println(t_end - t_start);
-    for (int i = 0; i < num_task; i++) {
-      Serial.println(str[i].wcrt, DEC);
-    }    
+    for (int i = 0; i < num_reps; i++) {
+        t_start = micros();
+        rta3_wcrt();
+        t_end = micros();    
+        Serial.println("rta3");
+        if (schedulable) {
+          Serial.println("True");
+        } else {
+          Serial.println("False");
+        }    
+        Serial.println(t_end - t_start);
+        for (int i = 0; i < num_task; i++) {
+          Serial.println(str[i].wcrt, DEC);
+        }    
+    }
     Serial.flush();
     // === test rta2 ===
-    t_start = micros();
-    rta2_wcrt();
-    t_end = micros();    
-    Serial.println("rta2");
-    if (schedulable) {
-      Serial.println("True");
-    } else {
-      Serial.println("False");
-    }    
-    Serial.println(t_end - t_start);
-    for (int i = 0; i < num_task; i++) {
-      Serial.println(str[i].wcrt, DEC);
-    }    
+    for (int i = 0; i < num_reps; i++) {
+        t_start = micros();
+        rta2_wcrt();
+        t_end = micros();    
+        Serial.println("rta2");
+        if (schedulable) {
+          Serial.println("True");
+        } else {
+          Serial.println("False");
+        }    
+        Serial.println(t_end - t_start);
+        for (int i = 0; i < num_task; i++) {
+          Serial.println(str[i].wcrt, DEC);
+        }    
+    }
     Serial.flush();
     // === test sjodin ===
-    t_start = micros();
-    sjodin_wcrt();
-    t_end = micros();    
-    Serial.println("sjodin");
-    if (schedulable) {
-      Serial.println("True");
-    } else {
-      Serial.println("False");
-    }    
-    Serial.println(t_end - t_start);
-    for (int i = 0; i < num_task; i++) {
-      Serial.println(str[i].wcrt, DEC);
-    }    
+    for (int i = 0; i < num_reps; i++) {
+        t_start = micros();
+        sjodin_wcrt();
+        t_end = micros();    
+        Serial.println("sjodin");
+        if (schedulable) {
+          Serial.println("True");
+        } else {
+          Serial.println("False");
+        }    
+        Serial.println(t_end - t_start);
+        for (int i = 0; i < num_task; i++) {
+          Serial.println(str[i].wcrt, DEC);
+        }    
+    }
     Serial.flush();
   }     
 }
