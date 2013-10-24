@@ -10,7 +10,7 @@ struct task_t {
 };
 
 // STR
-task_t str[10];
+task_t str[50];
 
 int num_task = 0;
 int num_reps = 0;
