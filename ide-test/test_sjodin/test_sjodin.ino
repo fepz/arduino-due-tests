@@ -1,6 +1,6 @@
 #include <math.h>
 
-// --- Definicion de una tarea de TR ---
+// Tarea de TR
 struct task_t {
   int id;
   int c;
@@ -9,6 +9,7 @@ struct task_t {
   int wcrt;
 };
 
+// STR
 task_t str[10];
 
 int num_task = 0;
@@ -17,79 +18,72 @@ unsigned long t_start, t_end;
 boolean schedulable;
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(9600);
+
+    // Fuck you Arduino
+    // https://github.com/arduino/Arduino/pull/1267
+    Serial.println("begin");
 }
 
 void loop() {
-  handshake();
-  
   // Numero de tareas
   if (Serial.available() > 0) {
     num_task = Serial.parseInt();
-    //Serial.println(num_task);
-    
-    for (int i = 0; i < 10; i++) {
-      str[i].id = i + 1;
-      str[i].c = Serial.parseInt();
-      str[i].t = Serial.parseInt();
-      str[i].d = Serial.parseInt();
-      str[i].wcrt = 0;
+
+    for (int i = 0; i < num_task; i++) {
+          str[i].id = i + 1;
+          str[i].c = Serial.parseInt();
+          str[i].t = Serial.parseInt();
+          str[i].d = Serial.parseInt();
+          str[i].wcrt = 0;
     }
     
-    Serial.println("Hola!");
-    
-    /*
-    Serial.println("rta2");
-    t_start = micros();
-    rta2_wcrt();
-    t_end = micros();    
-    if (schedulable) {
-      Serial.println("True");
-    } else {
-      Serial.println("False");
-    }    
-    for (int i = 0; i < num_task; i++) {
-      Serial.println(str[i].wcrt, DEC);
-    }    
-    Serial.println(t_end - t_start);
-
-    Serial.println("rta3");    
+    // === test rta3 ===
     t_start = micros();
     rta3_wcrt();
     t_end = micros();    
+    Serial.println("rta3");
     if (schedulable) {
       Serial.println("True");
     } else {
       Serial.println("False");
     }    
+    Serial.println(t_end - t_start);
     for (int i = 0; i < num_task; i++) {
       Serial.println(str[i].wcrt, DEC);
     }    
+    Serial.flush();
+    // === test rta2 ===
+    t_start = micros();
+    rta2_wcrt();
+    t_end = micros();    
+    Serial.println("rta2");
+    if (schedulable) {
+      Serial.println("True");
+    } else {
+      Serial.println("False");
+    }    
     Serial.println(t_end - t_start);
-
-    Serial.println("sjodin");
+    for (int i = 0; i < num_task; i++) {
+      Serial.println(str[i].wcrt, DEC);
+    }    
+    Serial.flush();
+    // === test sjodin ===
     t_start = micros();
     sjodin_wcrt();
     t_end = micros();    
+    Serial.println("sjodin");
     if (schedulable) {
       Serial.println("True");
     } else {
       Serial.println("False");
-    }
+    }    
+    Serial.println(t_end - t_start);
     for (int i = 0; i < num_task; i++) {
       Serial.println(str[i].wcrt, DEC);
     }    
-    Serial.println(t_end - t_start);
-    */
-  }    
-}
-
-void handshake() {
-  while (Serial.available() <= 0) {
-    Serial.write('A');
-    delay(300);
-  }
+    Serial.flush();
+  }     
 }
 
 void rta3_wcrt() {
