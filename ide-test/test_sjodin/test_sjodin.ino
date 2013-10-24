@@ -24,13 +24,18 @@ void setup() {
     // Fuck you Arduino
     // https://github.com/arduino/Arduino/pull/1267
     Serial.println("begin");
+
+    while (Serial.available() <= 0)
+        ;
+
+    // Nro de repeticiones
+    num_reps = Serial.parseInt();
 }
 
 void loop() {
   // Numero de tareas
   if (Serial.available() > 0) {
     num_task = Serial.parseInt();
-    num_reps = Serial.parseInt();
 
     for (int i = 0; i < num_task; i++) {
           str[i].id = i + 1;
