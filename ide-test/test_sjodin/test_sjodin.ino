@@ -18,17 +18,18 @@ boolean schedulable;
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(115200);
-  handshake();
+  Serial.begin(9600);
 }
 
 void loop() {
+  handshake();
+  
   // Numero de tareas
   if (Serial.available() > 0) {
     num_task = Serial.parseInt();
-    Serial.println(num_task);
+    //Serial.println(num_task);
     
-    for (int i = 0; i < num_task; i++) {
+    for (int i = 0; i < 10; i++) {
       str[i].id = i + 1;
       str[i].c = Serial.parseInt();
       str[i].t = Serial.parseInt();
@@ -36,6 +37,9 @@ void loop() {
       str[i].wcrt = 0;
     }
     
+    Serial.println("Hola!");
+    
+    /*
     Serial.println("rta2");
     t_start = micros();
     rta2_wcrt();
@@ -77,9 +81,8 @@ void loop() {
       Serial.println(str[i].wcrt, DEC);
     }    
     Serial.println(t_end - t_start);
-  }
-  
-  handshake();
+    */
+  }    
 }
 
 void handshake() {
