@@ -1,5 +1,6 @@
 #include <FreeRTOS_ARM.h>
 #include "setr_logic.h"
+#include "display.h"
 
 void setup()
 {
