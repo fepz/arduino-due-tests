@@ -1,17 +1,11 @@
 Que carajo hace el ArduinoIDE al compilar un proyecto con FreeRTOS
 ------------------------------------------------------------------
 
-Primero, y antes que nada, al bootear la placa la ejecución inicia en la función Reset_Handler, en el archivo
-hardware\arduino\sam\system\CMSIS\Device\ATMEL\sam3xa\source\gcc\startup_sam3xa.c.
+Primero, y antes que nada, al bootear la placa la ejecución inicia en la función Reset_Handler, en el archivo hardware\arduino\sam\system\CMSIS\Device\ATMEL\sam3xa\source\gcc\startup_sam3xa.c.
 
-Todo el codigo para inicio de ejecucion parece estar ya compilado en el binario libsam_sam3x8e_gcc_real.a, que
-se encuentra en el directorio hardware\arduino\sam\variants\arduino_due_x
+Todo el codigo para inicio de ejecucion parece estar ya compilado en el binario libsam_sam3x8e_gcc_real.a, que se encuentra en el directorio hardware\arduino\sam\variants\arduino_due_x
 
-El archivo startup_sam3xa.c inicializa segmentos (definidos en el linker flash.ld), setea el vector de interrupciones,
-inicializa sectores de memoria, e invoca la funcion main(). Realiza un include del archivo sam3xa.h, que luego
-realiza el include del archivo "sam3x8e.h".
-
-
+El archivo startup_sam3xa.c inicializa segmentos (definidos en el linker flash.ld), setea el vector de interrupciones, inicializa sectores de memoria, e invoca la funcion main(). Realiza un include del archivo sam3xa.h, que luego realiza el include del archivo "sam3x8e.h".
 
 Tomamos el proyecto blink.cpp, y analizamos el ouput:
 
@@ -46,9 +40,7 @@ C:\Users\fep\Documents\bin\arduino-1.5.2/hardware/tools/g++_arm_none_eabi/bin/ar
     -o C:\Users\fep\AppData\Local\Temp\build3472501678454059290.tmp\frBlink.cpp.o 
                       -- nombre del archivo objeto
 
-Lo primero a tener en cuenta es que el ArduinoIDE convierte el archivo frBlink.ino en frBlink.cpp, y
-agrega en este varias sentencias del preprocesador (#LINE, etc). Asi, los errores de compilación se 
-refieren al archivo que se edita en el ArduinoIDE (caso contrario los nros de linea en los warnings o 
-errores no serian los mismos, etc.).
+Lo primero a tener en cuenta es que el ArduinoIDE convierte el archivo frBlink.ino en frBlink.cpp, y agrega en este varias sentencias del preprocesador (#LINE, etc). Asi, los errores de compilación se refieren al archivo que se edita en el ArduinoIDE (caso contrario los nros de linea en los warnings o errores no serian los mismos, etc.).
 
-
+Archivo FreeRTOSConfig.h --
+El archivo de configuración de FreeRTOS se encuentra en el directorio FreeRTOS_ARM/utility/, 
