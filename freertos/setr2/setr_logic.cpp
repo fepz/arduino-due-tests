@@ -33,7 +33,7 @@ void vTaskGetRunTimeStats()
     unsigned long ulTotalRuntime, ulStatsAsPercentage;
 
     uxArraySize = uxTaskGetNumberOfTasks();
-    pxTaskStatusArray = pvPortMalloc(uxArraySize * sizeof(xTaskStatusType));
+    pxTaskStatusArray = (xTaskStatusType*) pvPortMalloc(uxArraySize * sizeof(xTaskStatusType));
 
     uxArraySize = uxTaskGetSystemState(pxTaskStatusArray, uxArraySize, &ulTotalRuntime);
     vPortFree(pxTaskStatusArray);
