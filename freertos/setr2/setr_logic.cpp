@@ -6,6 +6,8 @@ int YELLOW_LED = 39;
 
 int pot = 0;
 
+extern volatile long unsigned int ulHighFrequencyTimerTicks = 0L;
+
 int base_display1 = 31;
 int base_display2 = 22;
 int offset = 7;
@@ -14,17 +16,10 @@ char numbers[10] = {63, 6, 91, 79, 102, 109, 125, 7, 127, 111};
 char display1_pins[8] = {32, 33, 36, 35, 34, 31, 30, 37};
 char display2_pins[8] = {24, 25, 28, 27, 26, 23, 22, 29};
 
-typedef struct xTASK_STATUS
+void handler()
 {
-    xTaskHandle *handle;
-    const signed char* pcTaskName;
-    unsigned portBASE_TYPE xTaskNumber;
-    eTaskState eCurrentState;
-    unsigned portBASE_TYPE uxCurrentPriority;
-    unsigned portBASE_TYPE uxBasePriority;
-    unsigned long ulRunTimeCounter;
-    unsigned short usStackHighWaterMark;
-} xTaskStatusType;
+    ulHighFrequencyTimerTicks += 1L;
+}
 
 void vTaskGetRunTimeStats()
 {
@@ -36,6 +31,14 @@ void vTaskGetRunTimeStats()
     pxTaskStatusArray = (xTaskStatusType*) pvPortMalloc(uxArraySize * sizeof(xTaskStatusType));
 
     uxArraySize = uxTaskGetSystemState(pxTaskStatusArray, uxArraySize, &ulTotalRuntime);
+
+    Serial.println("Tarea 1");
+    Serial.println(pxTaskStatusArray[0].ulRunTimeCounter, DEC);
+    Serial.println("Tarea 2");
+    Serial.println(pxTaskStatusArray[1].ulRunTimeCounter, DEC);
+    Serial.println("Tarea 3");
+    Serial.println(pxTaskStatusArray[2].ulRunTimeCounter, DEC);
+
     vPortFree(pxTaskStatusArray);
 }
 
@@ -125,14 +128,20 @@ void task3(void* args)
 
     for(;;) {
         vTaskDelayUntil(&lastWakeTime, freq);
+        digitalWrite(YELLOW_LED, HIGH); 
         int value = analogRead(pot);
         mostrar_numero((double) (value / 10.24));
+        eat_cpu();
+        vTaskGetRunTimeStats();
+        digitalWrite(YELLOW_LED, LOW); 
     }
 }
 
 
 void setup_rts()
 {
+    Serial.begin(9600);
+
     for (int i = 0; i <= offset; i++) {
         pinMode(display1_pins[i], OUTPUT);
         pinMode(display2_pins[i], OUTPUT);
@@ -141,10 +150,12 @@ void setup_rts()
     }
 
     pinMode(RED_LED, OUTPUT);
+    pinMode(YELLOW_LED, OUTPUT);
     pinMode(GREEN_LED, OUTPUT);
 
     // los LEDs comienzan apagados
     digitalWrite(RED_LED, LOW); 
+    digitalWrite(YELLOW_LED, LOW); 
     digitalWrite(GREEN_LED, LOW); 
 
     // Crea la tarea periodica
@@ -152,6 +163,8 @@ void setup_rts()
     xTaskCreate(task2, NULL, configMINIMAL_STACK_SIZE, NULL, 2, NULL);
     xTaskCreate(task3, NULL, configMINIMAL_STACK_SIZE, NULL, 3, NULL);
 
+    Timer3.attachInterrupt(handler).start((configCPU_CLOCK_HZ / 10000UL ) - 1UL);
+    
     // Inicia el planificador
     vTaskStartScheduler();
 

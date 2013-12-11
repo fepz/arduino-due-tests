@@ -1,4 +1,5 @@
-#include <FreeRTOS_ARM.h>
+#include <FreeRTOS_v752_ARM.h>
+#include <DueTimer.h>
 #include "setr_logic.h"
 
 void setup()
