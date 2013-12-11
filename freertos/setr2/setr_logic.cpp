@@ -163,7 +163,10 @@ void setup_rts()
     xTaskCreate(task2, NULL, configMINIMAL_STACK_SIZE, NULL, 2, NULL);
     xTaskCreate(task3, NULL, configMINIMAL_STACK_SIZE, NULL, 3, NULL);
 
-    Timer3.attachInterrupt(handler).start((configCPU_CLOCK_HZ / 10000UL ) - 1UL);
+    // Timer -- frecuencia: 10^6 Hz
+    Timer1.attachInterrupt(handler);
+    Timer1.setFrequency(10000);
+    Timer1.start();
     
     // Inicia el planificador
     vTaskStartScheduler();

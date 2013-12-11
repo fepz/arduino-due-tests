@@ -45,9 +45,9 @@ void task2(void* args)
 
     for(;;) {
         vTaskDelayUntil(&lastWakeTime, freq);
-        digitalWrite(GREEN_LED, HIGH); 
+        digitalWrite(GREEN_LED, HIGH);
         eat_cpu();
-        digitalWrite(GREEN_LED, LOW); 
+        digitalWrite(GREEN_LED, LOW);
     }
 }
 
