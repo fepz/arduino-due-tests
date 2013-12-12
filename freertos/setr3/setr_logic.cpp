@@ -14,6 +14,9 @@ char numbers[10] = {63, 6, 91, 79, 102, 109, 125, 7, 127, 111};
 char display1_pins[8] = {32, 33, 36, 35, 34, 31, 30, 37};
 char display2_pins[8] = {24, 25, 28, 27, 26, 23, 22, 29};
 
+int tasks_periods[] = {1000, 3000, 6000};
+xTaskHandle xTasks[3];
+
 void eat_cpu()
 {
     int i;
@@ -87,52 +90,36 @@ void task3(void* args)
 
 void task_sched(void* args)
 {
-    const portTickType freq = 1000;
+    const portTickType freq = 100;
     portTickType lastWakeTime;
 
-    xTaskHandle xTask1 = NULL;
-    xTaskHandle xTask2 = NULL;
-    xTaskHandle xTask3 = NULL;
-    
-    xTaskCreate(task1, NULL, configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xTask1);
-    xTaskCreate(task2, NULL, configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xTask2);
-    xTaskCreate(task3, NULL, configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xTask3);
+    xTaskCreate(task1, NULL, configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xTasks[0]);
+    xTaskCreate(task2, NULL, configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xTasks[1]);
+    xTaskCreate(task3, NULL, configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xTasks[2]);
 
-    vTaskSuspend(xTask1);
-    vTaskSuspend(xTask2);
-    vTaskSuspend(xTask3);
+    vTaskSuspend(xTasks[0]);
+    vTaskSuspend(xTasks[1]);
+    vTaskSuspend(xTasks[2]);
 
     lastWakeTime = xTaskGetTickCount();
 
-    int task_to_run = 0;
+    int task_to_run = -1;
 
     for (;;) {
-        vTaskDelayUntil(&lastWakeTime, freq);
-
-        vTaskSuspend(xTask1);
-        vTaskSuspend(xTask2);
-        vTaskSuspend(xTask3);
+        vTaskSuspend(xTasks[0]);
+        vTaskSuspend(xTasks[1]);
+        vTaskSuspend(xTasks[2]);
 
         digitalWrite(RED_LED, LOW); 
         digitalWrite(GREEN_LED, LOW); 
         digitalWrite(YELLOW_LED, LOW); 
 
-        switch (task_to_run) {
-            case 0:
-                vTaskResume(xTask1);
-                break;
-            case 1:
-                vTaskResume(xTask2);
-                break;
-            case 2:
-                vTaskResume(xTask3);
-                break;
+        if (task_to_run >= 0) {
+            vTaskResume(xTasks[task_to_run]);
         }
 
         mostrar_numero(task_to_run);
-
-        task_to_run = task_to_run + 1;
-        task_to_run = task_to_run % 3;
+        vTaskDelayUntil(&lastWakeTime, freq);
     }
 }
 
