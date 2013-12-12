@@ -1,5 +1,8 @@
 #include "setr_logic.h"
 
+#define READY 1
+#define RUNNING 2
+
 int RED_LED = 38;
 int GREEN_LED = 40;
 int YELLOW_LED = 39;
@@ -14,7 +17,7 @@ char numbers[10] = {63, 6, 91, 79, 102, 109, 125, 7, 127, 111};
 char display1_pins[8] = {32, 33, 36, 35, 34, 31, 30, 37};
 char display2_pins[8] = {24, 25, 28, 27, 26, 23, 22, 29};
 
-int tasks_periods[] = {1000, 3000, 6000};
+portTickType tasks_periods[] = {3000, 4000, 6000};
 xTaskHandle xTasks[3];
 
 void eat_cpu()
@@ -55,14 +58,20 @@ void mostrar_numero(int n) {
     }
 }
 
+void workload(int led) {
+    digitalWrite(led, HIGH); 
+    eat_cpu();
+    digitalWrite(led, LOW); 
+}
+
 /*
  * Tarea periodica
  */
 void task1(void* args)
 {
     for (;;) {
-        digitalWrite(RED_LED, HIGH); 
-        eat_cpu();
+        workload(RED_LED);
+        vTaskSuspend(NULL);
     }
 }
 
@@ -72,8 +81,8 @@ void task1(void* args)
 void task2(void* args)
 {
     for (;;) {
-        digitalWrite(GREEN_LED, HIGH); 
-        eat_cpu();
+        workload(YELLOW_LED);
+        vTaskSuspend(NULL);
     }
 }
 
@@ -83,8 +92,8 @@ void task2(void* args)
 void task3(void* args)
 {
     for (;;) {
-        digitalWrite(YELLOW_LED, HIGH); 
-        eat_cpu();
+        workload(GREEN_LED);
+        vTaskSuspend(NULL);
     }
 }
 
@@ -92,6 +101,8 @@ void task_sched(void* args)
 {
     const portTickType freq = 100;
     portTickType lastWakeTime;
+    portTickType nextActivation[3] = {0, 0, 0};
+    int task_state[3] = {READY, READY, READY};
 
     xTaskCreate(task1, NULL, configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xTasks[0]);
     xTaskCreate(task2, NULL, configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xTasks[1]);
@@ -103,19 +114,27 @@ void task_sched(void* args)
 
     lastWakeTime = xTaskGetTickCount();
 
-    int task_to_run = -1;
+    int task_to_run = 0;
 
     for (;;) {
-        vTaskSuspend(xTasks[0]);
-        vTaskSuspend(xTasks[1]);
-        vTaskSuspend(xTasks[2]);
-
-        digitalWrite(RED_LED, LOW); 
-        digitalWrite(GREEN_LED, LOW); 
-        digitalWrite(YELLOW_LED, LOW); 
-
-        if (task_to_run >= 0) {
-            vTaskResume(xTasks[task_to_run]);
+        if (lastWakeTime >= nextActivation[0]) {
+            if (eTaskGetState(xTasks[0]) == eSuspended) {
+                task_to_run = 1;
+                nextActivation[0] = nextActivation[0] + tasks_periods[0];
+                vTaskResume(xTasks[0]);
+            }
+        } else if (lastWakeTime >= nextActivation[1]) {
+            if (eTaskGetState(xTasks[1]) == eSuspended) {
+                task_to_run = 2;
+                nextActivation[1] = nextActivation[1] + tasks_periods[1];
+                vTaskResume(xTasks[1]);
+            }
+        } else if (lastWakeTime >= nextActivation[2]) {
+            if (eTaskGetState(xTasks[2]) == eSuspended) {
+                task_to_run = 3;
+                nextActivation[2] = nextActivation[2] + tasks_periods[2];
+                vTaskResume(xTasks[2]);
+            }
         }
 
         mostrar_numero(task_to_run);
