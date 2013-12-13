@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "setr_logic.h"
 
 #define READY 1
@@ -17,13 +18,18 @@ char numbers[10] = {63, 6, 91, 79, 102, 109, 125, 7, 127, 111};
 char display1_pins[8] = {32, 33, 36, 35, 34, 31, 30, 37};
 char display2_pins[8] = {24, 25, 28, 27, 26, 23, 22, 29};
 
-portTickType tasks_periods[] = {3000, 4000, 6000};
+portTickType tasks_periods[] = {3000 / portTICK_RATE_MS, 4000 / portTICK_RATE_MS, 6000 / portTICK_RATE_MS};
 xTaskHandle xTasks[3];
+xSemaphoreHandle mutex;
 
-void eat_cpu()
+void eat_cpu(int ms)
 {
+    portTickType tick_end = xTaskGetTickCount() + (ms / portTICK_RATE_MS);
     int i;
-    for (i = 0; i < 0xFFFFF; i++) {
+    while (1) {
+        if (xTaskGetTickCount() >= tick_end) {
+            break;
+        }
         asm("nop");
     }
 }
@@ -58,10 +64,12 @@ void mostrar_numero(int n) {
     }
 }
 
-void workload(int led) {
+void workload(int task_id, int ms, int led) {
+    //xSemaphoreTake(mutex, portMAX_DELAY);
     digitalWrite(led, HIGH); 
-    eat_cpu();
+    eat_cpu(ms);
     digitalWrite(led, LOW); 
+    //xSemaphoreGive(mutex);
 }
 
 /*
@@ -70,7 +78,7 @@ void workload(int led) {
 void task1(void* args)
 {
     for (;;) {
-        workload(RED_LED);
+        workload(1, 500, RED_LED);
         vTaskSuspend(NULL);
     }
 }
@@ -81,7 +89,7 @@ void task1(void* args)
 void task2(void* args)
 {
     for (;;) {
-        workload(YELLOW_LED);
+        workload(2, 500, YELLOW_LED);
         vTaskSuspend(NULL);
     }
 }
@@ -92,14 +100,14 @@ void task2(void* args)
 void task3(void* args)
 {
     for (;;) {
-        workload(GREEN_LED);
+        workload(3, 1000, GREEN_LED);
         vTaskSuspend(NULL);
     }
 }
 
 void task_sched(void* args)
 {
-    const portTickType freq = 100;
+    const portTickType freq = 1 / portTICK_RATE_MS;
     portTickType lastWakeTime;
     portTickType nextActivation[3] = {0, 0, 0};
     int task_state[3] = {READY, READY, READY};
@@ -118,7 +126,7 @@ void task_sched(void* args)
 
     for (;;) {
         if (lastWakeTime >= nextActivation[0]) {
-            if (eTaskGetState(xTasks[0]) == eSuspended) {
+            if (eTaskGetState(xTasks[0]) == eSuspended || eTaskGetState(xTasks[0]) == eBlocked) {
                 task_to_run = 1;
                 nextActivation[0] = nextActivation[0] + tasks_periods[0];
                 vTaskResume(xTasks[0]);
@@ -135,6 +143,8 @@ void task_sched(void* args)
                 nextActivation[2] = nextActivation[2] + tasks_periods[2];
                 vTaskResume(xTasks[2]);
             }
+        } else {
+            task_to_run = 0;
         }
 
         mostrar_numero(task_to_run);
@@ -144,6 +154,8 @@ void task_sched(void* args)
 
 void setup_rts()
 {
+    Serial.begin(9600);
+
     for (int i = 0; i <= offset; i++) {
         pinMode(display1_pins[i], OUTPUT);
         pinMode(display2_pins[i], OUTPUT);
@@ -159,6 +171,8 @@ void setup_rts()
     digitalWrite(RED_LED, LOW); 
     digitalWrite(YELLOW_LED, LOW); 
     digitalWrite(GREEN_LED, LOW); 
+
+    mutex = xSemaphoreCreateMutex();
 
     // Tareas
     xTaskCreate(task_sched, NULL, configMINIMAL_STACK_SIZE, NULL, 1, NULL);
