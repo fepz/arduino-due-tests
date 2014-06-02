@@ -1,13 +1,10 @@
-/*
- * Define the supported output formats - elf32-littlearm is the
- *  default
- */
-OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
+/* Formato de salida del binario */
+OUTPUT_FORMAT("elf32-littlearm")
  
-/* Define the target architecture */
+/* Arquitectura de la plataforma */
 OUTPUT_ARCH(arm)
  
-/* Memory Spaces Definitions */
+/* Como esta organizada la memoria */
 MEMORY
 {
     rom (rx)    : ORIGIN = 0x00080000, LENGTH = 0x00080000 /* Flash, 512K */
@@ -16,7 +13,7 @@ MEMORY
     ram (rwx)   : ORIGIN = 0x20070000, LENGTH = 0x00018000 /* sram, 96K */
 }
 
-/* Define the memory layout for the board */
+/* Secciones del programa según la distribución de la memoria */
 SECTIONS
 {
     .text : { *(.text .text.*) } > rom
